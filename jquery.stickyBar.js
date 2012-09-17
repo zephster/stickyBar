@@ -21,10 +21,11 @@
 *
 *
 * OPTIONS
-*		divBounds :    Define a DOM element wich limit both top and bottom position. If true, defaults to divTarget parent.
-*		showClose :    Show a close button to disable this behavior
-*		scrollFirst :  If true, will try to show all the content before fixing the position. Useful when the bar is higher than the window.
-*		divBase :      Define the starting position, defaults to divBounds if defined or divTarget
+*		divBounds :           Define a DOM element wich limit both top and bottom position. If true, defaults to divTarget parent.
+*		showClose :           Show a close button to disable this behavior
+*		scrollFirst :         If true, will try to show all the content before fixing the position. Useful when the bar is higher than the window.
+*		includeBoundPadding : If true, the tab will be constrained within the divBounds padding. Defaults to true if divBounds === true.
+*		divBase :             Define the starting position, defaults to divBounds if defined or divTarget
 *
 *
 *
@@ -45,7 +46,9 @@
 
 (function($){
     $.fn.stickyBar = function(o){
-        $.stickyBar($(this),o);
+		return $(this).each(function() {
+			$.stickyBar($(this),o);
+		});
     }
 
     $.stickyBar = function(divTarget, options){
@@ -53,6 +56,7 @@
             'divBounds'   : true, //define a DOM element wich limit both top and bottom position. If true, defaults to divTarget parent.
             'showClose' : false, //Show a close button to disable this behavior
             'scrollFirst' : true, //if true, will try to show all the content before fixing the position. Useful when the bar is higher than the window.
+			'includeBoundPadding' : null, //If true, the tab will be constrained within the divBounds padding. Defaults to true if divBounds === true
             'divBase'   : '' //define the starting position, defaults to divBounds if defined or divTarget
         };
         var settings = $.extend(defaults, options);
@@ -63,17 +67,27 @@
 		var MODE_DISABLED = 3;
         var mode = MODE_UNWRAPPED; //initial value
 		
+		if(settings.includeBoundPadding === null) settings.includeBoundPadding = (settings.divBounds === true);
         var divBounds = (settings.divBounds === true) ? divTargetBase = $(divTarget).parent() : divTargetBase = settings.divBounds;
         var divTargetBase = (settings.divBase) ? divTargetBase = settings.divBase : (divBounds? divTargetBase=divBounds : divTargetBase = divTarget);
 		
-        var stickyBarTop = $(divTargetBase).offset().top;
+        var stickyBarTop;
 		var curTop = $(divTarget).offset().top;
+		var offsetParent = $(divTarget).offsetParent();
         $(window).scroll(function(){
 			if(mode == MODE_DISABLED){
 				return;
 			}
 			if (mode == MODE_UNWRAPPED){
 				stickyBarTop = $(divTargetBase).offset().top;
+			}
+			var paddingTop = 0;
+			var paddingBottom = 0;
+			if(settings.includeBoundPadding){
+				paddingTop = parseInt($(divTargetBase).css("padding-top").replace('px',''));
+				paddingTop = (paddingTop?paddingTop:0);
+				paddingBottom = parseInt($(divTargetBase).css("padding-bottom").replace('px',''));
+				paddingBottom = (paddingBottom?paddingBottom:0);
 			}
 			var StartDecale = 0;
             var scrollPos = $(window).scrollTop();
@@ -92,18 +106,18 @@
 					moveOffset = 0;
 				}else{ //when there is still content in the bar that can be seen by scrolling
 					fixe = false;
-					moveOffset = lastTop-stickyBarTop;
+					moveOffset = lastTop-stickyBarTop
 				}
 			}
 			
 			///// divBounds bottom limiting Behavior /////
-			if(divBounds && $(divBounds).height() + stickyBarTop - $(divTarget).height() + moveOffset <= scrollPos){
+			if(divBounds && (settings.includeBoundPadding?$(divBounds).height():$(divBounds).outerHeight()) + stickyBarTop + paddingTop - $(divTarget).outerHeight() + moveOffset <= scrollPos){
 				fixe = false;
-				moveOffset = $(divBounds).height() - $(divTarget).height();
+				moveOffset = (settings.includeBoundPadding?$(divBounds).height():$(divBounds).outerHeight()) + paddingTop - $(divTarget).outerHeight();
 			}
 			
-			///// top limiting Behavior (part 2) /////
-			fixe = fixe && scrollPos >= stickyBarTop;
+			///// top limiting Behavior /////
+			fixe = fixe && scrollPos - paddingTop >= stickyBarTop;
 			
 			///// apply position fixing and offset displacement /////
             if (fixe || moveOffset > 0){
@@ -134,6 +148,7 @@
 					mode = MODE_FIXED;
 				//apply position displacemetn if asked by behaviors
 				}else if(!fixe && moveOffset > 0 && mode != MODE_MOVED){
+					if(divBounds) moveOffset += (divBounds.offset().top - offsetParent.offset().top);
 					$(divTarget).parent().css({
 						'position'    : "absolute",
 						'top'         : moveOffset,
