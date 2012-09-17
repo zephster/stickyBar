@@ -1,0 +1,103 @@
+<!DOCTYPE HTML>
+<html lang="en-US">
+<head>
+	<meta charset="UTF-8">
+	<title>jQuery stickyBar Plugin v1.2.0</title>
+	<script type="text/javascript" src="http://code.jquery.com/jquery-latest.min.js"></script>
+	<script type="text/javascript" src="jquery.stickyBar.js"></script>
+	<script type="text/javascript">
+		$(function(){
+			$(".shortBar").stickyBar();
+			$(".longBar").stickyBar({divBounds:$(".content")});
+		})
+	</script>
+	<style type="text/css">
+		.mainContainer{
+			position: relative;
+			background-color: #eeeeee;
+			width:900px;
+			padding: 15px;
+		}
+		.content{
+			width:500px;
+			background-color: #cccccc;
+			float:right;
+			padding: 15px;
+			margin-bottom: 30px;
+		}
+		.content p{
+			line-height: 50px;
+		}
+		.longBar{
+			float:left;
+			width:200px;
+			padding: 15px;
+			line-height: 50px;
+			background-color: #ccccff;
+			border: 1px #000000 solid;
+		}
+		.smallTabContainer{
+			position: relative;
+			height: 300px;
+			background-color: #666666;
+			padding: 15px;
+		}
+		.shortBar{
+			width:300px;
+			padding: 15px;
+			background-color: #ccccff;
+		}
+	</style>
+</head>
+<body>
+	<h1>jQuery stickyBar Plugin v1.2.0</h1>
+	<div class="mainContainer">
+		<div class="longBar bar">
+			<h2>This is a long tab</h2>
+			1<br>
+			2<br>
+			3<br>
+			4<br>
+			5<br>
+			6<br>
+			7<br>
+			8<br>
+			9<br>
+			10<br>
+			11<br>
+			12<br>
+			13<br>
+			14<br>
+			15<br>
+			16<br>
+		</div>
+		<div class="content">
+			<div class="smallTabContainer">
+				<div class="shortBar bar"><h2>this is a short tab</h2></div>
+			</div>
+			<p>
+			1<br>
+			2<br>
+			3<br>
+			4<br>
+			5<br>
+			6<br>
+			7<br>
+			8<br>
+			9<br>
+			10<br>
+			11<br>
+			12<br>
+			13<br>
+			14<br>
+			15<br>
+			16</p>
+			17</p>
+			18</p>
+			19</p>
+			20</p>
+		</div>
+		<div style="clear:both;"></div>
+	</div>
+</body>
+</html>
